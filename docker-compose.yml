@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trellis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trellis_db
+      POSTGRES_USER: trellis_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-trellis_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - trellis_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trellis_user -d trellis_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  trellis_pgdata:
+    driver: local
